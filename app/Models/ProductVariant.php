@@ -22,7 +22,7 @@ class ProductVariant extends Model
 
     public function InventoryManagements()
     {
-        return $this->hasMany('App\Models\InventoryManagement', 'variant_id', 'id');
+        return $this->hasMany('App\Models\InventoryManagement', 'variant_id', 'id')->where('status',1);
     }
 
     public function ProductSkus()

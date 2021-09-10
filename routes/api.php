@@ -111,4 +111,5 @@ Route::group(['middleware' => 'auth.jwt'], function () {
 Route::group(['namespace'=>'Api\Frontend'],function(){
     Route::get('/categories','ApiHomeController@getListCategories');
     Route::get('/product','ApiHomeController@getListProduct');
+    Route::get('/product/promotion','ApiHomeController@getProductDiscount');
 });

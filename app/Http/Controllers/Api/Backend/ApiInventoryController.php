@@ -126,13 +126,12 @@ class ApiInventoryController extends Controller
     {
         try {
             $inventory = InventoryManagement::findOrFail($id);
-            $isInventory = $inventory->update($request->all());
+            $isInventory = $inventory->update([
+                'status'=>$request->status
+            ]);
             if($isInventory){
                 return response()->json([
                     'status_code' => $this->codeSuccess,
-                    'data' => $inventory->with(['ProductVariants','ProductSkus'])
-                                        ->latest()
-                                        ->first()
                 ]);
             }
         }catch(Exception $e){
