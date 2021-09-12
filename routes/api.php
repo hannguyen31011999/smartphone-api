@@ -113,3 +113,10 @@ Route::group(['namespace'=>'Api\Frontend'],function(){
     Route::get('/product','ApiHomeController@getListProduct');
     Route::get('/product/promotion','ApiHomeController@getProductDiscount');
 });
+
+Route::group(['namespace'=>'Api\Frontend','prefix'=>'cart'],function(){
+    Route::get('/list','ApiCartController@index');
+    Route::post('/create','ApiCartController@store');
+    Route::patch('/update/{id}','ApiCartController@update');
+    Route::delete('/delete/{id}','ApiCartController@destroy');
+});
