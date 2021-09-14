@@ -120,3 +120,18 @@ Route::group(['namespace'=>'Api\Frontend','prefix'=>'cart'],function(){
     Route::patch('/update/{id}','ApiCartController@update');
     Route::delete('/delete/{id}','ApiCartController@destroy');
 });
+
+Route::group(['namespace'=>'Api\Frontend','prefix'=>'register'],function(){
+    Route::post('/create','ApiRegisterController@register');
+    Route::put('/update/{id}','ApiRegisterController@update');
+});
+
+Route::group(['namespace'=>'Api\Frontend'],function(){
+    Route::post('/login','ApiLoginClientController@login');
+    Route::get('/token/refresh','ApiLoginClientController@refreshToken');
+    Route::get('/logout','ApiLoginClientController@logout')->middleware('auth.jwt');
+});
+
+Route::group(['namespace'=>'Api\Frontend','prefix'=>'detail'],function(){
+    Route::get('/{slug}','ApiProductDetail@index');
+});

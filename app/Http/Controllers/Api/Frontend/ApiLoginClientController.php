@@ -1,7 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Api\Backend;
-
+namespace App\Http\Controllers\api\frontend;
 use JWTAuth;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -9,12 +8,12 @@ use App\Http\Controllers\Controller;
 use Tymon\JWTAuth\Exceptions\JWTException;
 use Carbon\Carbon;
 
-class ApiLoginController extends Controller
+class ApiLoginClientController extends Controller
 {
     public $loginAfterSignUp = true;
     private $expired = 60;
 
-    // http://localhost:8000/api/login?email=admin1@gmail.com&password=123456
+    // http://localhost:8000/api/login
     public function login(Request $request)
     {
         $input = $request->only('email', 'password');
@@ -25,10 +24,19 @@ class ApiLoginController extends Controller
                 'message' => 'Invalid Email or Password',
             ]);
         }
+        $data = [
+            'id'=>JWTAuth::user()->id,
+            'name'=>JWTAuth::user()->name,
+            'email'=>JWTAuth::user()->email,
+            'phone'=>JWTAuth::user()->phone,
+            'address'=>JWTAuth::user()->address,
+            'birth'=>JWTAuth::user()->birth,
+            'gender'=>JWTAuth::user()->gender
+        ];
         return response()->json([
             'status_code' => 200,
             'token' => $token ,
-            'user'=> JWTAuth::user(),
+            'user'=> $data,
             'timestamp' => [
                 'expired' => $this->expired,
                 'time' => Carbon::now()
@@ -36,7 +44,6 @@ class ApiLoginController extends Controller
         ]);
     }
 
-    // http://localhost:8000/api/refresh/token
     public function refreshToken(Request $request)
     {
         JWTAuth::factory()->setTTL($this->expired);
@@ -51,15 +58,6 @@ class ApiLoginController extends Controller
         ]);
     }
 
-    public function getAdminInfo(Request $request)
-    {
-        return response()->json([
-            'status_code' => 200,
-            'user'=> JWTAuth::user()
-        ]);
-    }
-
-    // http://localhost:8000/api/logout?token=
     public function logout(Request $request)
     {
         try {
