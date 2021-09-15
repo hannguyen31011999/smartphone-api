@@ -47,7 +47,7 @@ class ApiProductDetail extends Controller
                     'variants'=>$variant,
                     'slug'=>$slugs,
                     'categories'=>$categories,
-                    'option'=>$option
+                    'option'=>$option,
                 ]
             ]);
         }catch(Exception $e){

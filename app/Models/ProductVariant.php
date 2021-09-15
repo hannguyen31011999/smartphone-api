@@ -8,7 +8,7 @@ class ProductVariant extends Model
 {
     use SoftDeletes;
     protected $table = "product_variant";
-    protected $fillable = ['id','product_id','product_variant_name','product_variant_rom','created_at','updated_at','deleted_at'];
+    protected $fillable = ['id','product_id','product_variant_name','product_variant_rom','product_variant_ram','created_at','updated_at','deleted_at'];
 
     public function Products()
     {

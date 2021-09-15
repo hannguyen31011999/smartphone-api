@@ -33,7 +33,7 @@ class ApiPostController extends Controller
         if($request->hasFile('image')){
             $file = $request->file('image');
             $fileName = time() . '.' . $file->getClientOriginalExtension();
-            Storage::disk('post_image')->put($fileName,$file);
+            Storage::disk('post_image')->put($fileName,file_get_contents($file));
             return 'storage/post_image/'.$fileName;
         }
     }

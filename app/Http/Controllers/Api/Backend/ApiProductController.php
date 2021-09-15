@@ -69,12 +69,12 @@ class ApiProductController extends Controller
                 'operating_system'=>'max:100',
                 'cpu'=>'max:100',
                 'gpu'=>'max:100',
-                'ram'=>'max:100|numeric',
                 'camera_fr'=>'max:255',
-                'camera_ba'=>'max:255',
+                'camera_be'=>'max:255',
                 'pin'=>'max:254',
                 'product_variant_name'=>'max:254|unique:product_variant,product_variant_name',
-                'product_variant_rom'=>'required|numeric|max:99',
+                'product_variant_rom'=>'required|numeric|max:999',
+                'product_variant_ram'=>'required|max:100|numeric',
                 'sku_unit_price'=>'required|numeric|max:9999',
                 'sku_qty'=>'required|max:100|numeric',
                 'color'=>'required|max:50'
@@ -102,14 +102,14 @@ class ApiProductController extends Controller
                 'operating_system'=>$request->operating_system ? $request->operating_system : null,
                 'cpu'=>$request->cpu ? $request->cpu : null,
                 'gpu'=>$request->gpu ? $request->gpu : null,
-                'ram'=>$request->ram ? $request->ram : null,
                 'camera_fr'=>$request->camera_fr ? $request->camera_fr : null,
-                'camera_ba'=>$request->camera_ba ? $request->camera_ba : null,
+                'camera_be'=>$request->camera_ba ? $request->camera_be : null,
                 'pin'=>$request->pin ? $request->pin : null,
             ]);
             $variant = $product->ProductVariants()->create([
                 'product_variant_name' => $request->product_variant_name ? $request->product_variant_name : null,
-                'product_variant_rom' => $request->product_variant_rom
+                'product_variant_rom' => $request->product_variant_rom,
+                'product_variant_ram' => $request->product_variant_ram
             ]);
             $variant->Slugs()->create([
                 'slug_url'=>utf8tourl($request->product_variant_name)
@@ -191,7 +191,7 @@ class ApiProductController extends Controller
                     'gpu'=>'max:100',
                     'ram'=>'max:10|numeric',
                     'camera_fr'=>'max:255',
-                    'camera_ba'=>'max:255',
+                    'camera_be'=>'max:255',
                     'pin'=>'max:254'
                 ]
             );
@@ -219,8 +219,8 @@ class ApiProductController extends Controller
                 'operating_system'=>$request->operating_system ? $request->operating_system : $options->operating_system,
                 'cpu'=>$request->cpu ? $request->cpu : $options->cpu,
                 'gpu'=>$request->gpu ? $request->gpu : $options->gpu,
-                'ram'=>$request->ram ? $request->ram : $options->ram,
-                'camera'=>$request->camera ? $request->camera : $options->camera,
+                'camera_fe'=>$request->camera_fe ? $request->camera_fe : $options->camera_fe,
+                'camera_be'=>$request->camera_be ? $request->camera_be : $options->camera_be,
                 'pin'=>$request->pin ? $request->pin : $options->pin,
             ]);
             $result = $product->with(['ProductOptions','ProductVariants','ProductSkus'])
@@ -326,7 +326,8 @@ class ApiProductController extends Controller
             [
                 'image'=>'required',
                 'product_variant_name'=>'required|max:254|unique:product_variant,product_variant_name',
-                'product_variant_rom'=>'required|numeric',
+                'product_variant_rom'=>'required|numeric|max:999',
+                'product_variant_ram'=>'required|numeric|max:999',
                 'sku_unit_price'=>'required|numeric',
                 'sku_qty'=>'required|numeric',
                 'color'=>'required|max:50'
@@ -343,6 +344,7 @@ class ApiProductController extends Controller
             $variant = $product->ProductVariants()->create([
                 'product_variant_name' => $request->product_variant_name,
                 'product_variant_rom' => $request->product_variant_rom,
+                'product_variant_ram' => $request->product_variant_ram
             ]);
             $variant->Slugs()->create([
                 'slug_url'=>utf8tourl($request->product_variant_name)
@@ -398,7 +400,8 @@ class ApiProductController extends Controller
             $validator = Validator::make($request->all(),
                 [
                     'product_variant_name'=>'required|max:254|unique:product_variant,product_variant_name',
-                    'product_variant_rom'=>'required|numeric'
+                    'product_variant_rom'=>'required|numeric|max:999',
+                    'product_variant_ram'=>'required|numeric|max:999',
                 ]
             );
             if($validator->fails()){

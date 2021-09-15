@@ -11,8 +11,11 @@ class ApiCartController extends Controller
     // http://localhost:8000/api/cart/list?address_ip=127.0.0.1
     public function index(Request $request)
     {
+        $result = [];
         try {
-            $result = Cart::where('address_ip','like','%'.$request->address_ip.'%')->get();
+            if($request->query != null){
+                $result = Cart::where('user_id','=',$request['query'])->get();
+            }
             return response()->json([
                 'status_code'=>$this->codeSuccess,
                 'data'=>$result

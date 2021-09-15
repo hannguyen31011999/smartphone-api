@@ -18,7 +18,7 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 });
 
 // login
-Route::post('login', 'Api\Backend\ApiLoginController@login');
+Route::post('admin/login', 'Api\Backend\ApiLoginController@login');
 Route::get('refresh/token', 'Api\Backend\ApiLoginController@refreshToken');
 
 // api can token
