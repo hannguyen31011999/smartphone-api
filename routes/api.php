@@ -134,4 +134,5 @@ Route::group(['namespace'=>'Api\Frontend'],function(){
 
 Route::group(['namespace'=>'Api\Frontend','prefix'=>'detail'],function(){
     Route::get('/{slug}','ApiProductDetail@index');
+    Route::post('/review/create','ApiProductDetail@createReview');
 });

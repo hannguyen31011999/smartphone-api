@@ -35,7 +35,7 @@ class ApiCartController extends Controller
         try {
             if($cart){
                 $isBool = $cart->update([
-                    'qty'=>$cart->qty + 1
+                    'qty'=>$cart->qty + $request->qty
                 ]);
                 if($isBool){
                     return response()->json([
@@ -45,7 +45,6 @@ class ApiCartController extends Controller
                 }
             }else {
                 $input = $request->all();
-                $input['qty'] = 1;
                 $result = Cart::create($input);
                 if($result){
                     return response()->json([
