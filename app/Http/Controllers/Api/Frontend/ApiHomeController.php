@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\DB;
 use App\Models\Categories;
 use App\Models\Product;
 use App\Models\ProductVariant;
+use App\Models\Visitor;
 
 class ApiHomeController extends Controller
 {
@@ -76,5 +77,10 @@ class ApiHomeController extends Controller
                 'productDiscount'=>$productDiscount
             ]
         ]);
+    }
+
+    public function createVisitor(Request $request)
+    {
+        Visitor::create($request->all());
     }
 }

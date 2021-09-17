@@ -1,7 +1,7 @@
 <?php
 
 use Illuminate\Database\Seeder;
-use App\Models\Categories;
+use App\Models\Visitor;
 
 class CategoriesSeeder extends Seeder
 {
@@ -12,6 +12,6 @@ class CategoriesSeeder extends Seeder
      */
     public function run()
     {
-        factory(Categories::class, 50000)->create();
+        factory(Visitor::class, 10000)->create();
     }
 }

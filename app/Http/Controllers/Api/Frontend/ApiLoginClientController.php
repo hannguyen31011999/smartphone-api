@@ -3,10 +3,13 @@
 namespace App\Http\Controllers\api\frontend;
 use JWTAuth;
 use App\Models\User;
+use App\Models\SocialAccount;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Tymon\JWTAuth\Exceptions\JWTException;
+use App\Services\SocialAccountService;
 use Carbon\Carbon;
+use Socialite;
 
 class ApiLoginClientController extends Controller
 {
@@ -67,6 +70,42 @@ class ApiLoginClientController extends Controller
                 'message' => 'User logged out successfully'
             ]);
         } catch (JWTException $exception) {
+            return response()->json([
+                'status_code' => 500,
+                'message' => 'Sorry, the user cannot be logged out'
+            ], 500);
+        }
+    }
+
+    public function redirect()
+    {
+        return Socialite::driver('facebook')->redirect();
+    }
+
+    public function callback(SocialAccountService $service)
+    {
+        try{
+            $user = $service->createOrGetUser(Socialite::driver('facebook')->user());
+            $token = JWTAuth::fromUser($user);
+            $data = [
+                'id'=>$user->id,
+                'name'=>$user->name,
+                'email'=>$user->email,
+                'phone'=>$user->phone,
+                'address'=>$user->address,
+                'birth'=>$user->birth,
+                'gender'=>$user->gender
+            ];
+            return response()->json([
+                'status_code'=>$this->codeSuccess,
+                'token'=>$token,
+                'data'=>$data,
+                'timestamp' => [
+                    'expired' => $this->expired,
+                    'time' => Carbon::now()
+                ]
+            ]);
+        }catch (JWTException $exception) {
             return response()->json([
                 'status_code' => 500,
                 'message' => 'Sorry, the user cannot be logged out'

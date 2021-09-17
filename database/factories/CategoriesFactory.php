@@ -5,9 +5,8 @@
 use App\Model;
 use Faker\Generator as Faker;
 
-$factory->define(App\Models\Categories::class, function (Faker $faker) {
+$factory->define(App\Models\Visitor::class, function (Faker $faker) {
     return [
-        'categories_name' => $faker->username,     
-        'categories_desc' => $faker->address,
+        'ip_guest' => '1.52.213.139',
     ];
 });

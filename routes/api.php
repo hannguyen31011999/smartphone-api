@@ -104,6 +104,13 @@ Route::group(['middleware' => 'auth.jwt'], function () {
             Route::patch('/status/{id}','ApiInventoryController@updateStatus');
             Route::get('/seach','ApiInventoryController@seach');
         });
+
+        Route::group(['prefix'=>'review'],function(){
+            Route::get('/list','ApiReviewController@index');
+            Route::put('/update/{id}','ApiReviewController@update');
+            Route::delete('/delete/{id}','ApiReviewController@destroy');
+            Route::get('/seach','ApiReviewController@seach');
+        });
     });
 });
 
@@ -112,6 +119,7 @@ Route::group(['namespace'=>'Api\Frontend'],function(){
     Route::get('/categories','ApiHomeController@getListCategories');
     Route::get('/product','ApiHomeController@getListProduct');
     Route::get('/product/promotion','ApiHomeController@getProductDiscount');
+    Route::post('/visitor','ApiHomeController@createVisitor');
 });
 
 Route::group(['namespace'=>'Api\Frontend','prefix'=>'cart'],function(){
@@ -127,6 +135,9 @@ Route::group(['namespace'=>'Api\Frontend','prefix'=>'register'],function(){
 });
 
 Route::group(['namespace'=>'Api\Frontend'],function(){
+    Route::get('/redirect/{social}','ApiLoginClientController@redirect')->middleware('web');
+    Route::get('/callback/{social}','ApiLoginClientController@callback')->middleware('web');
+    Route::get('/social/remove','ApiLoginClientController@callback')->middleware('web');
     Route::post('/login','ApiLoginClientController@login');
     Route::get('/token/refresh','ApiLoginClientController@refreshToken');
     Route::get('/logout','ApiLoginClientController@logout')->middleware('auth.jwt');

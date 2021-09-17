@@ -24,7 +24,7 @@ class ApiProductDetail extends Controller
                         ->orderBy('created_at')
                         ->get();
             $review = $product->Reviews()
-                            ->where('review_status','!=',0)
+                            ->where('review_status','!=',2)
                             ->orderBy('created_at')
                             ->paginate(3);
             $inventory = $product->InventoryManagements()
