@@ -147,3 +147,13 @@ Route::group(['namespace'=>'Api\Frontend','prefix'=>'detail'],function(){
     Route::get('/{slug}','ApiProductDetail@index');
     Route::post('/review/create','ApiProductDetail@createReview');
 });
+
+Route::group(['namespace'=>'Api\Frontend','prefix'=>'product'],function(){
+    Route::get('/{slug}','ApiProductController@index');
+});
+
+Route::group(['namespace'=>'Api\Frontend','prefix'=>'categories'],function(){
+    Route::get('/{id}','ApiProductController@getProductWithCategories');
+});
+
+
