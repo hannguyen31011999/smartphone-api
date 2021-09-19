@@ -4,10 +4,12 @@ namespace App\Http\Controllers\api\frontend;
 
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\DB;
 use App\Models\Product;
 use App\Models\Slug;
 use App\Models\Categories;
 use App\Models\ProductVariant;
+use Carbon\Carbon;
 
 class ApiProductController extends Controller
 {
@@ -19,11 +21,19 @@ class ApiProductController extends Controller
                         ->with(['ProductSkus','Slugs','InventoryManagements'])
                         ->orderBy('created_at','desc')
                         ->paginate(6);
-        $count = Categories::where('deleted_at',null)
-                        ->withCount('Products')
-                        ->orderBy('created_at','asc')
-                        ->get(['id','categories_name']);
-        $discount = $product->Discounts()->first();
+        // $count = Categories::where('deleted_at',null)
+        //                 ->withCount(['Products' => function($query){
+        //                     $query->withCount('ProductVariants');
+        //                 }])
+        //                 ->orderBy('created_at','asc')
+        //                 ->get(['id','categories_name']);
+        $count = DB::table('product as pro')
+                    ->rightJoin('categories as cate','cate.id','=','pro.categories_id')
+                    ->rightJoin('product_variant as vari','vari.product_id','=','pro.id')
+                    ->select(DB::raw('COUNT(vari.id) as products_count'))
+                    ->groupBy('cate.id')
+                    ->get();
+        $discount = $product->Discounts()->where('discount_end','>',Carbon::now())->first();
         return response()->json([
             'status_code'=>$this->codeSuccess,
             'data'=>[
@@ -42,11 +52,17 @@ class ApiProductController extends Controller
         $result = ProductVariant::whereIn('product_id',$product)
                             ->with(['Slugs','ProductSkus'])
                             ->paginate(9);
-        $discount = $categories->Products()->with('Discounts')->get();
-        $count = Categories::where('deleted_at',null)
-                        ->withCount('Products')
-                        ->orderBy('created_at','asc')
-                        ->get(['id','categories_name']);
+        $discount = $categories->Products()
+                            ->with(['Discounts' => function($query){
+                                $query->where('discount_end','>',Carbon::now());
+                            }])
+                            ->get();
+        $count = DB::table('product as pro')
+                ->rightJoin('categories as cate','cate.id','=','pro.categories_id')
+                ->rightJoin('product_variant as vari','vari.product_id','=','pro.id')
+                ->select(DB::raw('COUNT(vari.id) as products_count'))
+                ->groupBy('cate.id')
+                ->get();
         return response()->json([
             'status_code'=>$this->codeSuccess,
             'data'=>[

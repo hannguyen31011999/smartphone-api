@@ -10,6 +10,7 @@ use App\Models\ProductVariant;
 use App\Models\Slug;
 use App\Models\Product;
 use App\Models\Review;
+use Carbon\Carbon;
 
 class ApiProductDetail extends Controller
 {
@@ -31,7 +32,7 @@ class ApiProductDetail extends Controller
                             ->orderBy('created_at')
                             ->get();
             $products = Product::findOrFail($product->product_id);
-            $discount = $products->Discounts()->first();
+            $discount = $products->Discounts()->where('discount_end','>',Carbon::now())->first();
             $variant = $products->ProductVariants()->get();
             $categories = $products->Categories()->first();
             $option = $products->ProductOptions()->first();

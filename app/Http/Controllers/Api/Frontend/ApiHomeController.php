@@ -9,6 +9,7 @@ use App\Models\Categories;
 use App\Models\Product;
 use App\Models\ProductVariant;
 use App\Models\Visitor;
+use Carbon\Carbon;
 
 class ApiHomeController extends Controller
 {
@@ -27,6 +28,7 @@ class ApiHomeController extends Controller
         $discount = DB::table('discount')
                     ->leftJoin('product','discount.id','=','product.discount_id')
                     ->select('discount.*','product.id')
+                    ->where('discount.discount_end','>=',Carbon::now())
                     ->orderBy('discount.created_at')
                     ->get();
         return response()->json([
@@ -67,6 +69,7 @@ class ApiHomeController extends Controller
                             ->rightJoin('slug','slug.product_variant_id','=','vari.id')
                             ->select('disc.*','vari.*','sku.*','slug.*')
                             ->where('pro.discount_id','!=',null)
+                            ->where('disc.discount_end','>',Carbon::now())
                             ->orderBy('pro.created_at','asc')
                             ->take(1)
                             ->get();
