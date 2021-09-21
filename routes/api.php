@@ -125,7 +125,7 @@ Route::group(['namespace'=>'Api\Frontend'],function(){
 Route::group(['namespace'=>'Api\Frontend','prefix'=>'cart'],function(){
     Route::get('/list','ApiCartController@index');
     Route::post('/create','ApiCartController@store');
-    Route::patch('/update/{id}','ApiCartController@update');
+    Route::put('/update/{id}','ApiCartController@update');
     Route::delete('/delete/{id}','ApiCartController@destroy');
 });
 
@@ -156,4 +156,11 @@ Route::group(['namespace'=>'Api\Frontend','prefix'=>'categories'],function(){
     Route::get('/{id}','ApiProductController@getProductWithCategories');
 });
 
+Route::group(['namespace'=>'Api\Frontend','prefix'=>'checkout'],function(){
+    Route::post('/paypal/create','ApiCheckoutController@createOrder');
+    Route::post('/paypal/execute','ApiCheckoutController@execute');
+    Route::get('/paypal/cancel','ApiCheckoutController@cancelPaypal');
+    Route::get('/paypal/success','ApiCheckoutController@paypalRedirect');
+    Route::post('/update/{id}','ApiCheckoutController@updateStatusOrder');
+});
 

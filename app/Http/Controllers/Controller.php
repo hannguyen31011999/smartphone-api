@@ -13,6 +13,5 @@ class Controller extends BaseController
     protected $codeFails = 500;
     protected $codeEmpty = 300;
     protected $expiredAt = 5;
-    
     use AuthorizesRequests, DispatchesJobs, ValidatesRequests;
 }

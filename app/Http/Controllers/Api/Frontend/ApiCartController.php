@@ -5,6 +5,7 @@ namespace App\Http\Controllers\api\frontend;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Models\Cart;
+use App\Models\ProductSku;
 
 class ApiCartController extends Controller
 {
@@ -67,13 +68,21 @@ class ApiCartController extends Controller
     {
         try {
             $cart = Cart::findOrFail($id);
-            $isBool = $cart->update([
-                'qty'=>$cart->qty + 1
-            ]);
-            if($isBool){
+            $product = $cart->ProductSkus()->first();
+            if((int)$product->sku_qty > ((int)$cart->qty + (int)$request->qty)){
+                $isBool = $cart->update([
+                    'qty'=>$cart->qty + $request->qty
+                ]);
+                if($isBool){
+                    return response()->json([
+                        'status_code'=>$this->codeSuccess,
+                        'data'=>$cart
+                    ]);
+                }
+            }else {
                 return response()->json([
-                    'status_code'=>$this->codeSuccess,
-                    'data'=>$cart
+                    'status_code'=>$this->codeFails,
+                    'message'=>'Sorry, Product is out of stock!'
                 ]);
             }
         }catch(Exception $e){
