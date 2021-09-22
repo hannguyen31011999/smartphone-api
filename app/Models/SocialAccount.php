@@ -11,7 +11,7 @@ class SocialAccount extends Model
 
     public function Users()
     {
-        return $this->hasMany('App\Models\User','user_id', 'id');
+        return $this->belongsTo('App\Models\User','user_id', 'id');
     }
 
 }

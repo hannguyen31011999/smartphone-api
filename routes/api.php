@@ -120,18 +120,19 @@ Route::group(['namespace'=>'Api\Frontend'],function(){
     Route::get('/product','ApiHomeController@getListProduct');
     Route::get('/product/promotion','ApiHomeController@getProductDiscount');
     Route::post('/visitor','ApiHomeController@createVisitor');
+    Route::get('/seach','ApiHomeController@seachProduct');
 });
 
 Route::group(['namespace'=>'Api\Frontend','prefix'=>'cart'],function(){
     Route::get('/list','ApiCartController@index');
     Route::post('/create','ApiCartController@store');
-    Route::put('/update/{id}','ApiCartController@update');
-    Route::delete('/delete/{id}','ApiCartController@destroy');
+    Route::post('/update/{id}','ApiCartController@update');
+    Route::get('/delete/{id}','ApiCartController@destroy');
 });
 
 Route::group(['namespace'=>'Api\Frontend','prefix'=>'register'],function(){
     Route::post('/create','ApiRegisterController@register');
-    Route::put('/update/{id}','ApiRegisterController@update');
+    // Route::put('/update/{id}','ApiRegisterController@update');
 });
 
 Route::group(['namespace'=>'Api\Frontend'],function(){
@@ -157,10 +158,11 @@ Route::group(['namespace'=>'Api\Frontend','prefix'=>'categories'],function(){
 });
 
 Route::group(['namespace'=>'Api\Frontend','prefix'=>'checkout'],function(){
-    Route::post('/paypal/create','ApiCheckoutController@createOrder');
+    Route::post('/create','ApiCheckoutController@createOrderDirect');
+    Route::post('/paypal/create','ApiCheckoutController@createOrderWithPayPal');
     Route::post('/paypal/execute','ApiCheckoutController@execute');
     Route::get('/paypal/cancel','ApiCheckoutController@cancelPaypal');
     Route::get('/paypal/success','ApiCheckoutController@paypalRedirect');
-    Route::post('/update/{id}','ApiCheckoutController@updateStatusOrder');
+    Route::get('/delete/{id}','ApiCheckoutController@updateStatusOrder');
 });
 

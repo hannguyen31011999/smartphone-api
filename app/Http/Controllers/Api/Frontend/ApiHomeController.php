@@ -86,4 +86,56 @@ class ApiHomeController extends Controller
     {
         Visitor::create($request->all());
     }
+
+    // http://localhost:8000/api/seach?keyword=iphone 12&categories=1
+    public function seachProduct(Request $request)
+    {
+        if(!empty($request->keyword) && !empty($request->categories)){
+            try {
+                $categories = Categories::findOrFail($request->categories);
+                $product = $categories->Products()
+                                ->where('product_name','like','%'.$request->keyword)
+                                ->first();
+                if($product){
+                    $slug = $product->Slugs()->first();
+                    return response()->json([
+                        'status_code'=>$this->codeSuccess,
+                        'data'=>$slug
+                    ]);
+                }else {
+                    return response()->json([
+                        'status_code'=>$this->codeFails,
+                        'message'=>'Product not found'
+                    ]);
+                }
+            }catch(Exception $e){
+                return response()->json([
+                    'status_code'=>$this->codeFails,
+                    'message'=>'Sorry, Please try again'
+                ],$this->codeFails);
+            }
+        }else {
+            try {
+                $product =  Product::where('product_name','like','%'.$request->keyword)
+                                ->first();
+                if($product){
+                    $slug = $product->Slugs()->first();
+                    return response()->json([
+                        'status_code'=>$this->codeSuccess,
+                        'data'=>$slug
+                    ]);
+                }else {
+                    return response()->json([
+                        'status_code'=>$this->codeFails,
+                        'message'=>'Product not found'
+                    ]);
+                }
+            }catch(Exception $e){
+                return response()->json([
+                    'status_code'=>$this->codeFails,
+                    'message'=>'Sorry, Please try again'
+                ],$this->codeFails);
+            }
+        }
+    }
 }

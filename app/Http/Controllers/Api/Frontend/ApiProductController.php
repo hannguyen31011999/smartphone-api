@@ -21,16 +21,10 @@ class ApiProductController extends Controller
                         ->with(['ProductSkus','Slugs','InventoryManagements'])
                         ->orderBy('created_at','desc')
                         ->paginate(6);
-        // $count = Categories::where('deleted_at',null)
-        //                 ->withCount(['Products' => function($query){
-        //                     $query->withCount('ProductVariants');
-        //                 }])
-        //                 ->orderBy('created_at','asc')
-        //                 ->get(['id','categories_name']);
         $count = DB::table('product as pro')
                     ->rightJoin('categories as cate','cate.id','=','pro.categories_id')
                     ->rightJoin('product_variant as vari','vari.product_id','=','pro.id')
-                    ->select(DB::raw('COUNT(vari.id) as products_count'))
+                    ->select([DB::raw('COUNT(vari.id) as products_count'),'cate.id'])
                     ->groupBy('cate.id')
                     ->get();
         $discount = $product->Discounts()->where('discount_end','>',Carbon::now())->first();
@@ -60,7 +54,7 @@ class ApiProductController extends Controller
         $count = DB::table('product as pro')
                 ->rightJoin('categories as cate','cate.id','=','pro.categories_id')
                 ->rightJoin('product_variant as vari','vari.product_id','=','pro.id')
-                ->select(DB::raw('COUNT(vari.id) as products_count'))
+                ->select([DB::raw('COUNT(vari.id) as products_count'),'cate.id'])
                 ->groupBy('cate.id')
                 ->get();
         return response()->json([

@@ -77,15 +77,15 @@ class ApiLoginClientController extends Controller
         }
     }
 
-    public function redirect()
+    public function redirect($social)
     {
-        return Socialite::driver('facebook')->redirect();
+        return Socialite::driver($social)->redirect();
     }
 
-    public function callback(SocialAccountService $service)
+    public function callback(SocialAccountService $service,$social)
     {
         try{
-            $user = $service->createOrGetUser(Socialite::driver('facebook')->user());
+            $user = $service->createOrGetUser(Socialite::driver($social)->user(),$social);
             $token = JWTAuth::fromUser($user);
             $data = [
                 'id'=>$user->id,

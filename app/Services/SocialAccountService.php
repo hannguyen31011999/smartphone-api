@@ -9,9 +9,9 @@ use Hash;
 
 class SocialAccountService
 {
-    public static function createOrGetUser(ProviderUser $providerUser)
+    public static function createOrGetUser(ProviderUser $providerUser,$social)
     {
-        $account = SocialAccount::whereProvider('facebook')
+        $account = SocialAccount::whereProvider($social)
             ->whereProviderUserId($providerUser->getId())
             ->first();
         if ($account) {
