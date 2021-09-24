@@ -14,7 +14,7 @@ use Socialite;
 class ApiLoginClientController extends Controller
 {
     public $loginAfterSignUp = true;
-    private $expired = 60;
+    private $expired = 60*24*30;
 
     // http://localhost:8000/api/login
     public function login(Request $request)

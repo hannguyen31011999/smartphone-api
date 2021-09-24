@@ -166,3 +166,9 @@ Route::group(['namespace'=>'Api\Frontend','prefix'=>'checkout'],function(){
     Route::get('/delete/{id}','ApiCheckoutController@updateStatusOrder');
 });
 
+
+
+Route::group(['namespace'=>'Api\Frontend','middleware'=>'auth.jwt'],function(){
+    Route::post('/info/update/{id}','ApiPurchaseController@updateUser');
+    Route::post('/password/update/{id}','ApiPurchaseController@updatePassword');
+});

@@ -12,7 +12,7 @@ use Carbon\Carbon;
 class ApiLoginController extends Controller
 {
     public $loginAfterSignUp = true;
-    private $expired = 60;
+    private $expired = 60*24*30;
 
     // http://localhost:8000/api/login?email=admin1@gmail.com&password=123456
     public function login(Request $request)
