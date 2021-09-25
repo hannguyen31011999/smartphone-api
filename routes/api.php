@@ -171,4 +171,6 @@ Route::group(['namespace'=>'Api\Frontend','prefix'=>'checkout'],function(){
 Route::group(['namespace'=>'Api\Frontend','middleware'=>'auth.jwt'],function(){
     Route::post('/info/update/{id}','ApiPurchaseController@updateUser');
     Route::post('/password/update/{id}','ApiPurchaseController@updatePassword');
+    Route::get('/user/{id}/purchase/all','ApiPurchaseController@getAllPurchase');
+    Route::get('/user/{id}/purchase','ApiPurchaseController@getPurchaseForStatus');
 });
