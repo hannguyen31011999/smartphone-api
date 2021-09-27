@@ -30,11 +30,6 @@ class ProductVariant extends Model
         return $this->hasMany('App\Models\ProductSku', 'product_variant_id', 'id');
     }
 
-    public function FirstProductSkus()
-    {
-        return $this->hasMany('App\Models\ProductSku', 'product_variant_id', 'id')->latest();
-    }
-
     public function Slugs()
     {
         return $this->hasMany('App\Models\Slug', 'product_variant_id', 'id');

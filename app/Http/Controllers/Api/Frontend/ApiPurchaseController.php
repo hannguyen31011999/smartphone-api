@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Validator;
 use App\Models\User;
+use App\Models\Order;
 use Hash;
 
 class ApiPurchaseController extends Controller
@@ -79,9 +80,12 @@ class ApiPurchaseController extends Controller
     {
         try{
             $user = User::findOrFail($id);
-            $order = $user->Orders()->with(['OrderDetails' => function($query){
-                $query->with('ProductSkus')->get();
-            }])->paginate(3);
+            $order = $user->Orders()
+                        ->with(['OrderDetails' => function($query){
+                            $query->with('ProductSkus')->get();
+                        }])
+                        ->orderBy('created_at','desc')
+                        ->paginate(3);
             return response()->json([
                 'status_code'=>$this->codeSuccess,
                 'data'=>$order
@@ -103,11 +107,29 @@ class ApiPurchaseController extends Controller
                         ->with(['OrderDetails' => function($query){
                             $query->with('ProductSkus')->get();
                         }])
+                        ->orderBy('created_at','desc')
                         ->paginate(3);
             return response()->json([
                 'status_code'=>$this->codeSuccess,
                 'data'=>$order
             ]);
+        }catch(Exception $e){
+            return response()->json([
+                'status_code'=>$this->codeFails
+            ]);
+        }
+    }
+
+    public function updatePurchase(Request $request,$id)
+    {
+        try{
+            $order = Order::findOrFail($id);
+            if($order->update($request->all())){
+                return response()->json([
+                    'status_code'=>$this->codeSuccess,
+                    'message'=>'Cancel order success'
+                ]);
+            }
         }catch(Exception $e){
             return response()->json([
                 'status_code'=>$this->codeFails

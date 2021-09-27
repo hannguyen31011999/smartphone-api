@@ -44,7 +44,7 @@ class ApiHomeController extends Controller
     // http://localhost:8000/api/product?page=2
     public function getListProduct()
     {
-        $result = ProductVariant::with(['Slugs','FirstProductSkus','InventoryManagements'])
+        $result = ProductVariant::with(['Slugs','ProductSkus'])
                             ->orderBy('created_at','desc')
                             ->paginate(4);
         return response()->json([

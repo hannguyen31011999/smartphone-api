@@ -105,11 +105,24 @@ Route::group(['middleware' => 'auth.jwt'], function () {
             Route::get('/seach','ApiInventoryController@seach');
         });
 
+        // review
         Route::group(['prefix'=>'review'],function(){
             Route::get('/list','ApiReviewController@index');
             Route::put('/update/{id}','ApiReviewController@update');
             Route::delete('/delete/{id}','ApiReviewController@destroy');
             Route::get('/seach','ApiReviewController@seach');
+        });
+
+        Route::group(['prefix'=>'order'],function(){
+            Route::get('/list','ApiOrderController@index');
+            Route::post('/update/{id}','ApiOrderController@update');
+            Route::get('/seach','ApiOrderController@seach');
+            Route::get('/export','ApiOrderController@exportOrder');
+            Route::get('/detail/{id}','ApiOrderDetailsController@index');
+        });
+
+        Route::group(['prefix'=>'dashboard'],function(){
+            Route::get('/count','ApiDashBoardController@countGroup');
         });
     });
 });
@@ -173,4 +186,5 @@ Route::group(['namespace'=>'Api\Frontend','middleware'=>'auth.jwt'],function(){
     Route::post('/password/update/{id}','ApiPurchaseController@updatePassword');
     Route::get('/user/{id}/purchase/all','ApiPurchaseController@getAllPurchase');
     Route::get('/user/{id}/purchase','ApiPurchaseController@getPurchaseForStatus');
+    Route::post('/purchase/update/{id}','ApiPurchaseController@updatePurchase');
 });

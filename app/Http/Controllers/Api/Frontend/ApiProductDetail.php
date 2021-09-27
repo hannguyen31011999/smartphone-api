@@ -22,34 +22,28 @@ class ApiProductDetail extends Controller
             $slug = Slug::where('slug_url','like','%'.$url.'%')->first();
             $product = ProductVariant::findOrFail($slug->product_variant_id);
             $sku = $product->ProductSkus()
+                        ->with(['InventoryManagements'=>function($query){
+                            return $query->where('qty','>',0)->get();
+                        }])
                         ->orderBy('created_at')
                         ->get();
             $review = $product->Reviews()
                             ->where('review_status','!=',2)
                             ->orderBy('created_at')
                             ->paginate(3);
-            $inventory = $product->InventoryManagements()
-                            ->orderBy('created_at')
-                            ->get();
             $products = Product::findOrFail($product->product_id);
             $discount = $products->Discounts()->where('discount_end','>',Carbon::now())->first();
-            $variant = $products->ProductVariants()->get();
+            $variant = $products->ProductVariants()->with('Slugs')->get();
             $categories = $products->Categories()->first();
             $option = $products->ProductOptions()->first();
-            foreach($variant as $value){
-                array_push($arrID,$value->id);
-            }
-            $slugs = Slug::whereIn('product_variant_id',$arrID)->get();
             return response()->json([
                 'status_code' => $this->codeSuccess,
                 'data' => [
                     'product'=>$product,
                     'product_sku'=>$sku,
                     'review'=>$review,
-                    'inventory'=>$inventory,
                     'discount'=>$discount,
                     'variants'=>$variant,
-                    'slug'=>$slugs,
                     'categories'=>$categories,
                     'option'=>$option,
                 ]

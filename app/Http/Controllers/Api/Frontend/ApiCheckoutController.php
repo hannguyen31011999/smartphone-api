@@ -46,7 +46,7 @@ class ApiCheckoutController extends Controller
             'transport_price'=>$request->transport_price,
             'order_note'=>$request->note ? $request->note : null,
             'order_email'=>$request->email,
-            'order_name'=>$request->firstName . $request->lastName,
+            'order_name'=>$request->firstName." ".$request->lastName,
             'order_address'=>$request->address,
             'order_phone'=>$request->phone,
             'order_name'=>$request->firstName . $request->lastName,
@@ -152,6 +152,7 @@ class ApiCheckoutController extends Controller
 
     public function execute(Request $request)
     {
+        $order = null;
         $paymentId = $request->paymentId;
         $payment = Payment::get($paymentId, $this->apiContext);
         $execution = new PaymentExecution();
@@ -161,7 +162,8 @@ class ApiCheckoutController extends Controller
             if($result->state == "approved" && $result->payer->status == "VERIFIED"){
                 if(count($request->cart) > 0){
                     $user = User::findOrFail($request->user_id);
-                    $order = Order::findOrFail($request->order_id)->update(['order_status'=>2]);
+                    $order = Order::findOrFail($request->order_id);
+                    $order->update(['order_status'=>2]);
                     foreach($request->cart as $value){
                         $cart = Cart::findOrFail($value);
                         $product = $cart->ProductSkus()->first();
@@ -184,7 +186,9 @@ class ApiCheckoutController extends Controller
                 'status_code'=>$this->codeSuccess,
                 'state'=>$result->state,
                 'status'=>$result->payer->status,
-                'message'=>"Payment success"
+                'data'=>$order->with(['OrderDetails' => function($query){
+                    $query->with('ProductSkus')->get();
+                }])->latest()->first()
             ]);
         } catch (Exception $ex) {
             return response()->json([
@@ -222,7 +226,7 @@ class ApiCheckoutController extends Controller
             'transport_price'=>$request->transport_price,
             'order_note'=>$request->note ? $request->note : null,
             'order_email'=>$request->email,
-            'order_name'=>$request->firstName . $request->lastName,
+            'order_name'=>$request->firstName." ".$request->lastName,
             'order_address'=>$request->address,
             'order_phone'=>$request->phone,
             'order_name'=>$request->firstName . $request->lastName,
@@ -234,18 +238,21 @@ class ApiCheckoutController extends Controller
             $order = Order::create($input);
             foreach ($request->cart as $value) {
                 $cart = Cart::findOrFail($value);
+                $price = $cart->promotion_price ? (int)$cart->promotion_price : (int)$cart->unit_price;
                 $result = $order->OrderDetails()->create([
                     'sku_id'=>$cart->sku_id,
                     'product_name'=>$cart->name,
-                    'product_price'=>$cart->promotion_price ? $cart->promotion_price : $cart->unit_price,
+                    'product_price'=>$price - (int)$cart->discount,
                     'qty'=>$cart->qty,
-                    'discount'=>$cart->qty
+                    'discount'=>$cart->discount
                 ]);
                 $cart->delete();
             }
             return response()->json([
                 'status'=>$this->codeSuccess,
-                'message'=>'Checkout success'
+                'data'=>$order->with(['OrderDetails' => function($query){
+                    $query->with('ProductSkus')->get();
+                }])->latest()->first()
             ]);
         }catch(Exception $e){
             return response()->json([
