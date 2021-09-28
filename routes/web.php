@@ -14,3 +14,11 @@
 Route::get('/', function () {
     return view('welcome');
 });
+
+// Route::get('/message', function () {
+//     $message['user'] = "Juan Perez";
+//     $message['message'] =  "Prueba mensaje desde Pusher";
+//     $success = event(new App\Events\MessagesEvent($message));
+//     return $success;
+// });
+

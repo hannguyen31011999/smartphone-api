@@ -21,6 +21,8 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 Route::post('admin/login', 'Api\Backend\ApiLoginController@login');
 Route::get('refresh/token', 'Api\Backend\ApiLoginController@refreshToken');
 
+Route::post('/support','Api\Backend\ApiMessageController@createMessage')->middleware('auth.jwt');
+
 // api can token
 Route::group(['middleware' => 'auth.jwt'], function () {
     // api admin
@@ -123,6 +125,7 @@ Route::group(['middleware' => 'auth.jwt'], function () {
 
         Route::group(['prefix'=>'dashboard'],function(){
             Route::get('/count','ApiDashBoardController@countGroup');
+            Route::get('/chart','ApiDashBoardController@getDataWithCategory');
         });
     });
 });

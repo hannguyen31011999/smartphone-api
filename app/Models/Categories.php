@@ -8,7 +8,6 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class Categories extends Model
 {
     use SoftDeletes;
-    
     protected $table = "categories";
     protected $fillable = ['id','categories_name','categories_desc','created_at','updated_at','deleted_at'];
     

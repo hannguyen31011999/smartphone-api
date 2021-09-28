@@ -48,4 +48,9 @@ class User extends Authenticatable implements JWTSubject
     {
         return $this->hasMany('App\Models\Review', 'user_id', 'id');
     }
+
+    public function ChatMessages()
+    {
+        return $this->hasMany('App\Models\Messages', 'user_id', 'id');
+    }
 }
