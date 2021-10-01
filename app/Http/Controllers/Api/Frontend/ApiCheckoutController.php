@@ -21,6 +21,8 @@ use PayPal\Api\InputFields;
 use PayPal\Api\Transaction;
 use PayPal\Api\RedirectUrls;
 use PayPal\Api\PaymentExecution;
+use App\Events\OrderMessages;
+use Carbon\Carbon;
 
 class ApiCheckoutController extends Controller
 {
@@ -49,7 +51,7 @@ class ApiCheckoutController extends Controller
             'order_name'=>$request->firstName." ".$request->lastName,
             'order_address'=>$request->address,
             'order_phone'=>$request->phone,
-            'order_name'=>$request->firstName . $request->lastName,
+            'order_name'=>$request->firstName." ".$request->lastName,
             'order_payment'=>$request->payment,
             'payment_option'=>$request->paymentOption
         ];
@@ -167,14 +169,12 @@ class ApiCheckoutController extends Controller
                     foreach($request->cart as $value){
                         $cart = Cart::findOrFail($value);
                         $product = $cart->ProductSkus()->first();
-                        $product->InventoryManagements()->update([
-                            'qty'=>$product->sku_qty - $cart->qty
-                        ]);
                         $product->update([
                             'sku_qty'=>$product->sku_qty - $cart->qty
                         ]);
                         $cart->delete();
                     }
+                    event(new OrderMessages($order->id,Carbon::now('Asia/Ho_Chi_Minh'),$order->order_name." placed the order successfully",$order->order_name));
                 }
             }else {
                 return response()->json([
@@ -229,13 +229,14 @@ class ApiCheckoutController extends Controller
             'order_name'=>$request->firstName." ".$request->lastName,
             'order_address'=>$request->address,
             'order_phone'=>$request->phone,
-            'order_name'=>$request->firstName . $request->lastName,
+            'order_name'=>$request->firstName ." " .$request->lastName,
             'order_payment'=>$request->payment,
             'payment_option'=>$request->paymentOption,
             'order_status'=>1
         ];
         try {
             $order = Order::create($input);
+            event(new OrderMessages($order->id,Carbon::now('Asia/Ho_Chi_Minh'),$order->order_name." placed the order successfully",$order->order_name));
             foreach ($request->cart as $value) {
                 $cart = Cart::findOrFail($value);
                 $price = $cart->promotion_price ? (int)$cart->promotion_price : (int)$cart->unit_price;
@@ -248,12 +249,14 @@ class ApiCheckoutController extends Controller
                 ]);
                 $cart->delete();
             }
-            return response()->json([
-                'status'=>$this->codeSuccess,
-                'data'=>$order->with(['OrderDetails' => function($query){
-                    $query->with('ProductSkus')->get();
-                }])->latest()->first()
-            ]);
+            if(!empty($order)){
+                return response()->json([
+                    'status_code'=>$this->codeSuccess,
+                    'data'=>$order->with(['OrderDetails' => function($query){
+                        $query->with('ProductSkus')->get();
+                    }])->latest()->first()
+                ]);
+            }
         }catch(Exception $e){
             return response()->json([
                 'status'=>$this->codeFails,

@@ -11,20 +11,25 @@ class MessagesEvent implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
-    public $message;
+    public $messenger;
 
-    public function __construct($message)
+    public function __construct($content,$isRole,$name,$time,$user_id,$isLogout = false)
     {
-        $this->message = $message;
+        $this->messenger["content"] = $content;
+        $this->messenger["isRole"] = $isRole;
+        $this->messenger["time"] = $time;
+        $this->messenger["name"] = $name;
+        $this->messenger["idUser"] = $user_id;
+        $this->messenger["isLogout"] = $isLogout;
     }
 
     public function broadcastOn()
     {
-        return ['my-channel'];
+        return ['messenger-channel'];
     }
 
     public function broadcastAs()
     {
-        return 'my-event';
+        return 'messenger-event';
     }
 }

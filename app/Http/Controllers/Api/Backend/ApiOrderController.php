@@ -40,10 +40,6 @@ class ApiOrderController extends Controller
                     $sku->update([
                         'sku_qty'=>(int)$sku->sku_qty - (int)$value->qty
                     ]);
-                    $inventory = $sku->InventoryManagements()->where('qty','>',$value->qty)->first();
-                    $inventory->update([
-                        'qty'=>(int)$sku->sku_qty
-                    ]);
                 }
                 $order->update($request->all());
             }else {

@@ -76,7 +76,6 @@ class ApiProductController extends Controller
                 'product_variant_rom'=>'required|numeric|max:999',
                 'product_variant_ram'=>'required|max:100|numeric',
                 'sku_unit_price'=>'required|numeric|max:9999',
-                'sku_qty'=>'required|max:100|numeric',
                 'color'=>'required|max:50'
             ]
         );
@@ -127,21 +126,21 @@ class ApiProductController extends Controller
                     'product_id'=>$product->id,
                     'sku_unit_price'=>$request->sku_unit_price,
                     'sku_promotion_price'=>$request->sku_promotion_price ? $request->sku_promotion_price : null,
-                    'sku_qty'=>$request->sku_qty,
+                    'sku_qty'=>0,
                     'color'=>$request->color,
                     'sku_image'=>$fileName
                 ]);
             }
-            $inventory = InventoryManagement::create([
-                'product_id'=>$product->id,
-                'variant_id'=>$variant->id,
-                'sku_id'=>$sku->id,
-                'unit_price'=>$request->sku_unit_price,
-                'promotion_price'=>$request->sku_promotion_price ? $request->sku_promotion_price : null,
-                'qty'=>$request->sku_qty,
-                'status'=>0
-            ]);
-            if($product && $variant && $sku && $inventory){
+            // $inventory = InventoryManagement::create([
+            //     'product_id'=>$product->id,
+            //     'variant_id'=>$variant->id,
+            //     'sku_id'=>$sku->id,
+            //     'unit_price'=>$request->sku_unit_price,
+            //     'promotion_price'=>$request->sku_promotion_price ? $request->sku_promotion_price : null,
+            //     'qty'=>$request->sku_qty,
+            //     'status'=>0
+            // ]);
+            if($product && $variant && $sku){
                 return response()->json([
                     'status_code' => $this->codeSuccess,
                     'data' => $product->with(['ProductOptions','ProductVariants','ProductSkus'])->latest()->first()
@@ -329,7 +328,6 @@ class ApiProductController extends Controller
                 'product_variant_rom'=>'required|numeric|max:999',
                 'product_variant_ram'=>'required|numeric|max:999',
                 'sku_unit_price'=>'required|numeric',
-                'sku_qty'=>'required|numeric',
                 'color'=>'required|max:50'
             ]
         );
@@ -362,7 +360,7 @@ class ApiProductController extends Controller
                     'product_id'=>$product->id,
                     'sku_unit_price'=>$request->sku_unit_price,
                     'sku_promotion_price'=>$request->sku_promotion_price ? $request->sku_promotion_price : null,
-                    'sku_qty'=>$request->sku_qty,
+                    'sku_qty'=>0,
                     'color'=>$request->color,
                     'sku_image'=>$fileName
                 ]);

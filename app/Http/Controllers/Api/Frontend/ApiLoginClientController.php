@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Tymon\JWTAuth\Exceptions\JWTException;
 use App\Services\SocialAccountService;
+use App\Events\MessagesEvent;
 use Carbon\Carbon;
 use Socialite;
 
@@ -64,6 +65,7 @@ class ApiLoginClientController extends Controller
     public function logout(Request $request)
     {
         try {
+            event(new MessagesEvent("",1,JWTAuth::user()->name,Carbon::now(),JWTAuth::user()->id,true));
             JWTAuth::invalidate(JWTAuth::parseToken());
             return response()->json([
                 'status_code' => 200,

@@ -12,6 +12,6 @@ class CategoriesSeeder extends Seeder
      */
     public function run()
     {
-        factory(Visitor::class, 10000)->create();
+        factory(Visitor::class, 5000)->create();
     }
 }

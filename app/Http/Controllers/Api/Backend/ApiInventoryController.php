@@ -8,6 +8,7 @@ use App\Models\InventoryManagement;
 use App\Models\ProductVariant;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
 
 class ApiInventoryController extends Controller
 {
@@ -53,13 +54,14 @@ class ApiInventoryController extends Controller
         try {
             $input = $request->all();
             $variant = ProductVariant::findOrFail($request->variant_id);
-            $input['status'] = 0;
+            $input['status'] = 1;
             $input['product_id'] = $variant->product_id;
             $inventory = InventoryManagement::create($input);
-            $isSku = $inventory->ProductSkus()->update([
+            $sku = $inventory->ProductSkus()->first();
+            $isSku = $sku->update([
                 'sku_unit_price'=>$request->unit_price,
                 'sku_promotion_price'=>$request->promotion_price ? $request->promotion_price : null,
-                'sku_qty'=>$request->qty
+                'sku_qty'=>$request->qty + $sku->sku_qty
             ]);
             if(!$inventory == null && $isSku){
                 return response()->json([
@@ -178,6 +180,27 @@ class ApiInventoryController extends Controller
             return response()->json([
                 'status_code' => $this->codeFails,
                 'message' => 'Server error not response'
+            ],$this->codeFails);
+        }
+    }
+
+    // http://localhost:8000/api/admin/inventory/export?month=9
+    public function exportInventory(Request $request)
+    {
+        try {
+            $result = InventoryManagement::with(['ProductSkus','ProductVariants'])
+                        ->whereYear('created_at','=',Carbon::now()->year)
+                        ->whereMonth('created_at','=',$request->month)
+                        ->where('deleted_at','=',null)
+                        ->orderBy('created_at','asc')
+                        ->get();
+            return response()->json([
+                'status_code'=>$this->codeSuccess,
+                'data'=>$result
+            ]);
+        }catch(Exception $e){
+            return response()->json([
+                'status_code'=>$this->codeFails,
             ],$this->codeFails);
         }
     }

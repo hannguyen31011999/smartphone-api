@@ -14,13 +14,10 @@ class ApiMessageController extends Controller
     public function createMessage(Request $request)
     {
         try {
-            $mess = Messages::create($request->all());
-            if(!empty($mess)){
-                event(new MessagesEvent($mess->messages));
-                return response()->json([
-                    'status_code'=>$this->codeSuccess,
-                ]);
-            }
+            event(new MessagesEvent($request->messages,$request->isRole,$request->name,Carbon::now(),$request->user_id));
+            return response()->json([
+                'status_code'=>$this->codeSuccess,
+            ]);
         }catch(Exception $e){
             return response()->json([
                 'status_code'=>$this->codeFails

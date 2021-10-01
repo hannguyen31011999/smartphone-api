@@ -105,6 +105,7 @@ Route::group(['middleware' => 'auth.jwt'], function () {
             Route::put('/update/{id}','ApiInventoryController@update');
             Route::patch('/status/{id}','ApiInventoryController@updateStatus');
             Route::get('/seach','ApiInventoryController@seach');
+            Route::get('/export','ApiInventoryController@exportInventory');
         });
 
         // review

@@ -31,7 +31,6 @@ class ApiProductSkuController extends Controller
             [
                 'image'=>'required',
                 'sku_unit_price'=>'required|numeric|max:9999',
-                'sku_qty'=>'required|numeric|max:100',
                 'color'=>'required|max:50'
             ]
         );
@@ -44,6 +43,7 @@ class ApiProductSkuController extends Controller
         try {
             $input = $request->all();
             $input['product_id'] = $variant->product_id;
+            $input['sku_qty'] = 0;
             if($request->hasFile('image')){
                 $file = $request->file('image');
                 $fileName = time() . '.' . $file->getClientOriginalExtension();
@@ -54,14 +54,14 @@ class ApiProductSkuController extends Controller
                 Storage::disk('product')->put($fileName,(string)$image);
                 $input['sku_image'] = $fileName;
                 $result = $variant->ProductSkus()->create($input);
-                $inventory = $variant->InventoryManagements()->create([
-                    'product_id'=>$variant->product_id,
-                    'sku_id'=>$result->id,
-                    'unit_price'=>$request->sku_unit_price,
-                    'promotion_price' => $request->sku_promotion_price != 'undefined' ? $request->sku_promotion_price : null,
-                    'qty'=> $request->sku_qty,
-                    'status'=>0
-                ]);
+                // $inventory = $variant->InventoryManagements()->create([
+                //     'product_id'=>$variant->product_id,
+                //     'sku_id'=>$result->id,
+                //     'unit_price'=>$request->sku_unit_price,
+                //     'promotion_price' => $request->sku_promotion_price != 'undefined' ? $request->sku_promotion_price : null,
+                //     'qty'=> $request->sku_qty,
+                //     'status'=>0
+                // ]);
                 if(!$result == null && !$inventory == null){
                     return response()->json([
                         'status_code' => $this->codeSuccess,

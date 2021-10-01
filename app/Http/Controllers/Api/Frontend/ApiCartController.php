@@ -54,7 +54,6 @@ class ApiCartController extends Controller
                     ]);
                 }
             }
-            
         }catch(Exception $e){
             return response()->json([
                 'status_code'=>$this->codeFails,
