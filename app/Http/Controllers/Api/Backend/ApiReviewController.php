@@ -17,7 +17,7 @@ class ApiReviewController extends Controller
     {
         $result = DB::table('review')
                     ->where('deleted_at','=',null)
-                    ->orderBy('id')
+                    ->orderBy('id','desc')
                     ->paginate($request->pageSize);
         return response()->json([
             'status_code' => $this->codeSuccess,

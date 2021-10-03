@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Carbon\Carbon;
 
 class ApiUserController extends Controller
 {
@@ -61,6 +62,7 @@ class ApiUserController extends Controller
         }
         try {
             $input = $request->all();
+            $input["birth"] = !empty($input["birth"]) ? $input["birth"] : Carbon::now();
             $input['role'] = $this->isRole;
             $input['status'] = $this->isStatus;
             $input['password'] = Hash::make($input['password']);
@@ -137,7 +139,7 @@ class ApiUserController extends Controller
                 return response()->json([
                     'status_code' => 422,
                     'message' => $validator->errors()
-                ],422);
+                ]);
             }
         }
         try {
@@ -173,7 +175,7 @@ class ApiUserController extends Controller
             }
             return response()->json([
                 'status_code' => $code,
-                'data' => $user
+                'message' => "Delete success"
             ]);
         }catch(Exception $e){
             return response()->json([

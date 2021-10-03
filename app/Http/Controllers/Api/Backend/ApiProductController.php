@@ -5,11 +5,14 @@ namespace App\Http\Controllers\api\backend;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Models\Product;
+use App\Models\Categories;
+use App\Models\Discount;
 use App\Models\ProductVariant;
 use App\Models\InventoryManagement;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use Carbon\Carbon;
 use Image;
 
 class ApiProductController extends Controller
@@ -17,35 +20,21 @@ class ApiProductController extends Controller
     // http://localhost:8000/api/admin/product/list?pageSize=15
     public function index(Request $request)
     {
-        $categories = [];
-        $discount = [];
         $result = Product::where('deleted_at','=',null)
                         ->with(['ProductOptions','ProductVariants','ProductSkus'])
                         ->orderBy('id')
                         ->paginate($request->pageSize);
-        if(!$request->page){
-            $categories = DB::table('categories')
-                        ->where('deleted_at','=',null)
-                        ->orderBy('id')
-                        ->get();
-            $discount = DB::table('discount')
-                        ->where('deleted_at','=',null)
-                        ->orderBy('id')
-                        ->get();
-        }
         return response()->json([
             'status_code' => $this->codeSuccess,
-            'data' => $result,
-            'parent' => [
-                'categories'=>$categories,
-                'discount'=>$discount
-            ]
+            'data' => $result
         ]);
     }
 
     // http://localhost:8000/api/admin/product/parent
-    public function getParentProduct(){
-        
+    public function getParentProduct()
+    {
+        $categories = Categories::all();
+        $discount = Discount::whereMonth('discount_end','>',Carbon::now()->month)->get();
         return response()->json([
             'status_code' => $this->codeSuccess,
             'data' => [
@@ -76,7 +65,8 @@ class ApiProductController extends Controller
                 'product_variant_rom'=>'required|numeric|max:999',
                 'product_variant_ram'=>'required|max:100|numeric',
                 'sku_unit_price'=>'required|numeric|max:9999',
-                'color'=>'required|max:50'
+                'color'=>'required|max:50',
+                'slug_url'=>'required|regex:[^[a-zA-Z]]'
             ]
         );
         if($validator->fails()){
@@ -102,7 +92,7 @@ class ApiProductController extends Controller
                 'cpu'=>$request->cpu ? $request->cpu : null,
                 'gpu'=>$request->gpu ? $request->gpu : null,
                 'camera_fr'=>$request->camera_fr ? $request->camera_fr : null,
-                'camera_be'=>$request->camera_ba ? $request->camera_be : null,
+                'camera_be'=>$request->camera_be ? $request->camera_be : null,
                 'pin'=>$request->pin ? $request->pin : null,
             ]);
             $variant = $product->ProductVariants()->create([
@@ -111,9 +101,8 @@ class ApiProductController extends Controller
                 'product_variant_ram' => $request->product_variant_ram
             ]);
             $variant->Slugs()->create([
-                'slug_url'=>utf8tourl($request->product_variant_name)
+                'slug_url'=>utf8tourl($request->slug_url)
             ]);
-            $sku = null;
             if($request->hasFile('image')){
                 $file = $request->file('image');
                 $fileName = time() . '.' . $file->getClientOriginalExtension();
@@ -131,21 +120,10 @@ class ApiProductController extends Controller
                     'sku_image'=>$fileName
                 ]);
             }
-            // $inventory = InventoryManagement::create([
-            //     'product_id'=>$product->id,
-            //     'variant_id'=>$variant->id,
-            //     'sku_id'=>$sku->id,
-            //     'unit_price'=>$request->sku_unit_price,
-            //     'promotion_price'=>$request->sku_promotion_price ? $request->sku_promotion_price : null,
-            //     'qty'=>$request->sku_qty,
-            //     'status'=>0
-            // ]);
-            if($product && $variant && $sku){
-                return response()->json([
-                    'status_code' => $this->codeSuccess,
-                    'data' => $product->with(['ProductOptions','ProductVariants','ProductSkus'])->latest()->first()
-                ]);
-            }
+            return response()->json([
+                'status_code' => $this->codeSuccess,
+                'data' => $product->with(['ProductOptions','ProductVariants','ProductSkus'])->latest()->first()
+            ]);
         }catch(Exception $e){
             return response()->json([
                 'status_code' => $this->codeFails,
@@ -162,7 +140,8 @@ class ApiProductController extends Controller
             if(!$product == null){
                 return response()->json([
                     'status_code' => $this->codeSuccess,
-                    'data' => $product
+                    'option' =>$product->ProductOptions()->first(),
+                    'product'=>$product
                 ]);
             }
         }catch(Exception $e){
@@ -249,18 +228,27 @@ class ApiProductController extends Controller
 
     public function destroy($id)
     {
-        $product = Product::findOrFail($id);
-        $isVariant = $product->ProductVariants()->delete();
-        $isOption = $product->ProductOptions()->delete();
-        $isSku = $product->ProductSkus()->delete();
-        $isProduct = $product->delete();
         try {
-            if($isOption && $isProduct && $isSku && $isVariant){
-                return response()->json([
-                    'status_code' => $this->codeSuccess,
-                    'message' => 'delete product success'
-                ]);
+            $product = Product::findOrFail($id);
+            $variant = $product->ProductVariants()->get();
+            foreach ($variant as $value) {
+                $value->Slugs()->delete();
+                $value->delete();
             }
+            $isOption = $product->ProductOptions()->delete();
+            $sku = $product->ProductSkus()->get();
+            foreach ($sku as $value) {
+                if (Storage::disk('product')->exists($value->sku_image)) {
+                    Storage::disk('product')->delete($value->sku_image);
+                    $value->delete();
+                }
+            }
+            $product->Slugs()->delete();
+            $product->delete();
+            return response()->json([
+                'status_code' => $this->codeSuccess,
+                'message' => 'delete product success'
+            ]);
         }catch(Exception $e){
             return response()->json([
                 'status_code' => $this->codeFails,
@@ -275,9 +263,7 @@ class ApiProductController extends Controller
         try {
             $result = [];
             if($request->keyword!=null){
-                $product = Product::where('deleted_at','=',null)
-                                ->where('id','=',(int)$request->keyword)
-                                ->first();
+                $product = Product::findOrFail($request->keyword);
                 $result = Product::with(['ProductOptions','ProductVariants','ProductSkus'])
                                 ->whereHas('ProductOptions',function( $q ) use ( $product ){
                                     $q->where('product_id','=',$product->id );
@@ -328,7 +314,8 @@ class ApiProductController extends Controller
                 'product_variant_rom'=>'required|numeric|max:999',
                 'product_variant_ram'=>'required|numeric|max:999',
                 'sku_unit_price'=>'required|numeric',
-                'color'=>'required|max:50'
+                'color'=>'required|max:50',
+                'slug_url'=>'required|regex:[^[a-zA-Z]]'
             ]
         );
         if($validator->fails()){
@@ -345,7 +332,7 @@ class ApiProductController extends Controller
                 'product_variant_ram' => $request->product_variant_ram
             ]);
             $variant->Slugs()->create([
-                'slug_url'=>utf8tourl($request->product_variant_name)
+                'slug_url'=>utf8tourl($request->slug_url)
             ]);
             $sku = null;
             if($request->hasFile('image')){
@@ -365,16 +352,7 @@ class ApiProductController extends Controller
                     'sku_image'=>$fileName
                 ]);
             }
-            $inventory = InventoryManagement::create([
-                'product_id'=>$product->id,
-                'variant_id'=>$variant->id,
-                'sku_id'=>$sku->id,
-                'unit_price'=>$request->sku_unit_price,
-                'promotion_price'=>$request->sku_promotion_price ? $request->sku_promotion_price : null,
-                'qty'=>$request->sku_qty,
-                'status'=>0
-            ]);
-            if($inventory && $sku && $product && $variant){
+            if($sku && $product && $variant){
                 return response()->json([
                     'status_code' => $this->codeSuccess,
                     'data' => [
@@ -400,6 +378,7 @@ class ApiProductController extends Controller
                     'product_variant_name'=>'required|max:254|unique:product_variant,product_variant_name',
                     'product_variant_rom'=>'required|numeric|max:999',
                     'product_variant_ram'=>'required|numeric|max:999',
+                    'slug_url'=>'required|regex:[^[a-zA-Z]]'
                 ]
             );
             if($validator->fails()){
@@ -410,9 +389,13 @@ class ApiProductController extends Controller
             }
         }
         try{
-            $isVariant = $variant->update($request->all());
+            $isVariant = $variant->update([
+                'product_variant_name'=>$request->product_variant_name,
+                'product_variant_rom'=>$request->product_variant_rom,
+                'product_variant_ram'=>$request->product_variant_ram,
+            ]);
             $isSlug = $variant->Slugs()->update([
-                'slug_url'=>utf8tourl($request->product_variant_name)
+                'slug_url'=>utf8tourl($request->slug_url)
             ]);
             if($isVariant && $isSlug){
                 return response()->json([
@@ -424,7 +407,6 @@ class ApiProductController extends Controller
             return response()->json([
                 'status_code' => $this->codeFails,
                 'message' => 'Server error not response',
-                'data' => $categories
             ],$this->codeFails);
         }
     }

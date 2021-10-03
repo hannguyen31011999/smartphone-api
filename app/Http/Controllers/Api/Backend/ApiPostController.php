@@ -120,32 +120,27 @@ class ApiPostController extends Controller
         $image = null;
         $fileName = null;
         if(strcmp($request->title,$post->title)!=0){
-            if($request->hasFile('image') != true){
-                $validator = Validator::make($request->all(),
-                    [
-                        'title'=>'required|max:254|unique:categories,categories_name',
-                        'content'=>'required',
-                        'image' => 'mimes:jpeg,jpg,png,gif|max:2048' 
-                    ],
-                    [
-                        'title.required'=>'title is not valid',
-                        'title.max'=>'title is maximum 254 character',
-                        'title.unique'=>'title is exist',
-                        'content.required'=>'content is not valid',
-                        'image.mimes' => 'wrong image format',
-                        'image.max'=>'image is maximum 2Mb'
-                    ]
-                );
-                if($validator->fails()){
-                    return response()->json([
-                        'status_code' => 422,
-                        'message' => $validator->errors()
-                    ],$this->codeSuccess);
-                }
+            $validator = Validator::make($request->all(),
+                [
+                    'title'=>'required|max:254|unique:categories,categories_name',
+                    'content'=>'required'
+                ],
+                [
+                    'title.required'=>'title is not valid',
+                    'title.max'=>'title is maximum 254 character',
+                    'title.unique'=>'title is exist',
+                    'content.required'=>'content is not valid',
+                ]
+            );
+            if($validator->fails()){
+                return response()->json([
+                    'status_code' => 422,
+                    'message' => $validator->errors()
+                ],$this->codeSuccess);
             }
         }
         try{
-            if($request->hasFile('image')){
+            if($request->hasFile('image') && !empty($request->file('image'))){
                 if (Storage::disk('post')->exists($post->image)) {
                     Storage::disk('post')->delete($post->image);
                 }

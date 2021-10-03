@@ -36,8 +36,8 @@ Route::group(['middleware' => 'auth.jwt'], function () {
             Route::get('/list','ApiCategoriesController@index');
             Route::post('/create','ApiCategoriesController@store');
             Route::get('/edit/{id}','ApiCategoriesController@edit');
-            Route::put('/update/{id}','ApiCategoriesController@update');
-            Route::delete('/delete/{id}','ApiCategoriesController@destroy');
+            Route::post('/update/{id}','ApiCategoriesController@update');
+            Route::get('/delete/{id}','ApiCategoriesController@destroy');
             Route::get('/seach','ApiCategoriesController@seach');
         });
 
@@ -46,8 +46,8 @@ Route::group(['middleware' => 'auth.jwt'], function () {
             Route::get('/list','ApiDiscountController@index');
             Route::post('/create','ApiDiscountController@store');
             Route::get('/edit/{id}','ApiDiscountController@edit');
-            Route::put('/update/{id}','ApiDiscountController@update');
-            Route::delete('/delete/{id}','ApiDiscountController@destroy');
+            Route::post('/update/{id}','ApiDiscountController@update');
+            Route::get('/delete/{id}','ApiDiscountController@destroy');
             Route::get('/seach','ApiDiscountController@seach');
         });
 
@@ -57,7 +57,7 @@ Route::group(['middleware' => 'auth.jwt'], function () {
             Route::post('/create','ApiPostController@store');
             Route::get('/edit/{id}','ApiPostController@edit');
             Route::post('/update/{id}','ApiPostController@update');
-            Route::delete('/delete/{id}','ApiPostController@destroy');
+            Route::get('/delete/{id}','ApiPostController@destroy');
             Route::get('/seach','ApiPostController@seach');
             Route::post('/upload','ApiPostController@uploadFilePost');
         });
@@ -67,10 +67,10 @@ Route::group(['middleware' => 'auth.jwt'], function () {
             Route::get('/list','ApiUserController@index');
             Route::post('/create','ApiUserController@store');
             Route::get('/edit/{id}','ApiUserController@edit');
-            Route::put('/update/{id}','ApiUserController@update');
-            Route::delete('/delete/{id}','ApiUserController@destroy');
+            Route::post('/update/{id}','ApiUserController@update');
+            Route::get('/delete/{id}','ApiUserController@destroy');
             Route::get('/seach','ApiUserController@seach');
-            Route::patch('/status/{id}','ApiUserController@updateStatus');
+            Route::post('/status/{id}','ApiUserController@updateStatus');
         });
 
         // product
@@ -79,12 +79,12 @@ Route::group(['middleware' => 'auth.jwt'], function () {
             Route::get('/parent','ApiProductController@getParentProduct');
             Route::post('/create','ApiProductController@store');
             Route::get('/edit/{id}','ApiProductController@edit');
-            Route::put('/update/{id}','ApiProductController@update');
-            Route::delete('/delete/{id}','ApiProductController@destroy');
+            Route::post('/update/{id}','ApiProductController@update');
+            Route::get('/delete/{id}','ApiProductController@destroy');
             Route::get('/seach','ApiProductController@seach');
-            Route::post('/variant/{product_id}','ApiProductController@createVariant');
-            Route::put('/variant/{id}','ApiProductController@updateVariant');
-            Route::delete('/variant/{id}','ApiProductController@deleteVariant');
+            Route::post('/variant/create/{product_id}','ApiProductController@createVariant');
+            Route::post('/variant/update/{id}','ApiProductController@updateVariant');
+            Route::get('/variant/{id}','ApiProductController@deleteVariant');
         });
         // product sku
         Route::group(['prefix'=>'product/sku'],function(){
@@ -92,7 +92,7 @@ Route::group(['middleware' => 'auth.jwt'], function () {
             Route::post('/create/{id}','ApiProductSkuController@store');
             Route::get('/edit/{id}','ApiProductSkuController@edit');
             Route::post('/update/{id}','ApiProductSkuController@update');
-            Route::delete('/delete/{id}','ApiProductSkuController@destroy');
+            Route::get('/delete/{id}','ApiProductSkuController@destroy');
             Route::get('/seach','ApiProductSkuController@seach');
         });
 
@@ -102,8 +102,8 @@ Route::group(['middleware' => 'auth.jwt'], function () {
             Route::get('/product','ApiInventoryController@getListProduct');
             Route::post('/create','ApiInventoryController@store');
             Route::get('/edit/{id}','ApiInventoryController@edit');
-            Route::put('/update/{id}','ApiInventoryController@update');
-            Route::patch('/status/{id}','ApiInventoryController@updateStatus');
+            Route::post('/update/{id}','ApiInventoryController@update');
+            Route::post('/status/{id}','ApiInventoryController@updateStatus');
             Route::get('/seach','ApiInventoryController@seach');
             Route::get('/export','ApiInventoryController@exportInventory');
         });
@@ -111,8 +111,8 @@ Route::group(['middleware' => 'auth.jwt'], function () {
         // review
         Route::group(['prefix'=>'review'],function(){
             Route::get('/list','ApiReviewController@index');
-            Route::put('/update/{id}','ApiReviewController@update');
-            Route::delete('/delete/{id}','ApiReviewController@destroy');
+            Route::post('/update/{id}','ApiReviewController@update');
+            Route::get('/delete/{id}','ApiReviewController@destroy');
             Route::get('/seach','ApiReviewController@seach');
         });
 
@@ -149,7 +149,7 @@ Route::group(['namespace'=>'Api\Frontend','prefix'=>'cart'],function(){
 
 Route::group(['namespace'=>'Api\Frontend','prefix'=>'register'],function(){
     Route::post('/create','ApiRegisterController@register');
-    // Route::put('/update/{id}','ApiRegisterController@update');
+    // Route::post('/update/{id}','ApiRegisterController@update');
 });
 
 Route::group(['namespace'=>'Api\Frontend'],function(){

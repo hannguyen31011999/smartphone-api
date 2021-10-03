@@ -54,15 +54,7 @@ class ApiProductSkuController extends Controller
                 Storage::disk('product')->put($fileName,(string)$image);
                 $input['sku_image'] = $fileName;
                 $result = $variant->ProductSkus()->create($input);
-                // $inventory = $variant->InventoryManagements()->create([
-                //     'product_id'=>$variant->product_id,
-                //     'sku_id'=>$result->id,
-                //     'unit_price'=>$request->sku_unit_price,
-                //     'promotion_price' => $request->sku_promotion_price != 'undefined' ? $request->sku_promotion_price : null,
-                //     'qty'=> $request->sku_qty,
-                //     'status'=>0
-                // ]);
-                if(!$result == null && !$inventory == null){
+                if($result){
                     return response()->json([
                         'status_code' => $this->codeSuccess,
                         'data' => $result

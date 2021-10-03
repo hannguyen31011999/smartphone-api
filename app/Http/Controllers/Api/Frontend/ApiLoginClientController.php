@@ -84,6 +84,27 @@ class ApiLoginClientController extends Controller
         return Socialite::driver($social)->redirect();
     }
 
+    public function getUserInfo(Request $request)
+    {
+        $data = [
+            'id'=>JWTAuth::user()->id,
+            'name'=>JWTAuth::user()->name,
+            'email'=>JWTAuth::user()->email,
+            'phone'=>JWTAuth::user()->phone,
+            'address'=>JWTAuth::user()->address,
+            'birth'=>JWTAuth::user()->birth,
+            'gender'=>JWTAuth::user()->gender
+        ];
+        return response()->json([
+            'status_code' => 200,
+            'user'=> $data,
+            'timestamp' => [
+                'expired' => $this->expired,
+                'time' => Carbon::now()
+            ]
+        ]);
+    }
+
     public function callback(SocialAccountService $service,$social)
     {
         try{
@@ -98,15 +119,7 @@ class ApiLoginClientController extends Controller
                 'birth'=>$user->birth,
                 'gender'=>$user->gender
             ];
-            return response()->json([
-                'status_code'=>$this->codeSuccess,
-                'token'=>$token,
-                'data'=>$data,
-                'timestamp' => [
-                    'expired' => $this->expired,
-                    'time' => Carbon::now()
-                ]
-            ]);
+            return redirect("https://ecommerc-spa-seven.vercel.app/login?token=".$token);
         }catch (JWTException $exception) {
             return response()->json([
                 'status_code' => 500,
